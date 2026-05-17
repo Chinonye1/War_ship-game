@@ -1,0 +1,22 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: blue;
+
+
+}
+
+#seaboard {
+    background-color: aqua;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+
+}
+
+#player-warship {
+    background-color: white;
+    position: absolute;
+    
+
+}
