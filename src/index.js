@@ -13,12 +13,12 @@ class PlayerWarship{
 
    motion() {
    
-
     this.warshipAction.style.left = this.positionX + "px";
     this.warshipAction.style.top = this.positionY + "px";
 
     this.warshipAction.style.width = this.width + "px";
     this.warshipAction.style.height = this.height + "px";
+    this.getPosition()
 }
 
 motionLeft(){
@@ -44,15 +44,90 @@ motionDown(){
     this.motion();
 }
 
-
+// inside class PlayerWarship
+getPosition(){ 
+  console.log( { x: this.positionX, y: this.positionY });
+  return { x: this.positionX, y: this.positionY }
 }
 
 
+}
+const newPlayer = new PlayerWarship();
+
+const enemies = [];
+
+class EnemyWarship {
+    constructor(element) {
+        this.width = 100;
+        this.height = 50;
+        this.speed = 1;
+        this.el = element;
+        this.container = this.el.parentElement || document.body;
+        this.positionX = Math.max(0, Math.random() * Math.max(0, this.container.clientWidth - this.width));
+        this.positionY = 10;
+
+        this.updateDom();
+        this.chaseInterval = setInterval(() => this.chasePlayer(), 100);
+    }
+
+    updateDom() {
+        this.el.style.left = this.positionX + "px";
+        this.el.style.top = this.positionY + "px";
+        this.el.style.width = this.width + "px";
+        this.el.style.height = this.height + "px";
+    }
+
+    chasePlayer() {
+        const player = newPlayer.getPosition();
+
+        if (player.x > this.positionX) {
+            this.positionX += this.speed;
+        } else if (player.x < this.positionX) {
+            this.positionX -= this.speed;
+        }
+
+        if (player.y > this.positionY) {
+            this.positionY += this.speed;
+        } else if (player.y < this.positionY) {
+            this.positionY -= this.speed;
+        }
+
+        this.updateDom();
+    }
+}
+
+function addElement() {
+    const seaboard = document.getElementById("seaboard");
+
+    if (!seaboard) {
+        return;
+    }
+
+    if (enemies.length >= 6) {
+        return;
+    }
+
+    const newWarship = document.createElement("div");
+    newWarship.className = "opponent-warship";
+    newWarship.style.position = "absolute";
+    newWarship.style.width = "100px";
+    newWarship.style.height = "50px";
+    newWarship.style.backgroundColor = "red";
+    newWarship.style.zIndex = "2";
+
+    const maxX = Math.max(0, seaboard.clientWidth - 100);
+    newWarship.style.left = Math.random() * maxX + "px";
+    newWarship.style.top = "10px";
+
+    seaboard.appendChild(newWarship);
+    enemies.push(new EnemyWarship(newWarship));
+}
+
+addElement();
+setInterval(addElement, 3000);
 
 
 
-
-const newPlayer= new PlayerWarship()
 
 
 
@@ -60,6 +135,7 @@ document.addEventListener("keydown", (e)=>{
     console.log(e);
     // Prevent the page from scrolling when using arrow keys
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+
         e.preventDefault();
     }
 
@@ -76,4 +152,5 @@ document.addEventListener("keydown", (e)=>{
         newPlayer.motionDown()
     }
 })
+
 
