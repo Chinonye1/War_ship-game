@@ -20,3 +20,8 @@ body {
     
 
 }
+
+#opponents-warship{
+    background-color: red;
+    position: absolute;
+}
