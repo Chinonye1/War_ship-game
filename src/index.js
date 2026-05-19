@@ -81,10 +81,21 @@ class PlayerWarship {
     if (this.isDead) {
       return;
     }
+    if (this.warshipAction) {
+      this.warshipAction.classList.add('hit-flash');
+      setTimeout(() => {
+        this.warshipAction.classList.remove('hit-flash');
+      }, 200);
+    }
     this.life = Math.max(0, this.life - amount);
     this.updateLifeLabel();
     if (this.life === 0) {
       this.isDead = true;
+      if (this.warshipAction) {
+        const blastX = this.positionX + this.width / 2 - 24;
+        const blastY = this.positionY + this.height / 2 - 24;
+        createExplosion(this.container, blastX, blastY);
+      }
       if (!gameEnded) {
         gameEnded = true;
         window.location.href = './gemeOver.html';
@@ -155,6 +166,20 @@ function getEdgeSpawnPosition(seaboard, width, height) {
   }
 
   return { x: maxX, y: Math.random() * maxY };
+}
+
+function createExplosion(container, x, y) {
+  if (!container) {
+    return;
+  }
+  const blast = document.createElement('div');
+  blast.className = 'explosion';
+  blast.style.left = `${x}px`;
+  blast.style.top = `${y}px`;
+  container.appendChild(blast);
+  setTimeout(() => {
+    blast.remove();
+  }, 500);
 }
 
 class EnemyWarship {
@@ -268,9 +293,16 @@ class EnemyWarship {
     if (this.isDestroyed) {
       return;
     }
+    this.el.classList.add('hit-flash');
+    setTimeout(() => {
+      this.el.classList.remove('hit-flash');
+    }, 200);
     this.life = Math.max(0, this.life - amount);
     this.updateLifeLabel();
     if (this.life === 0) {
+      const blastX = this.positionX + this.width / 2 - 24;
+      const blastY = this.positionY + this.height / 2 - 24;
+      createExplosion(this.container, blastX, blastY);
       this.destroy();
     }
   }
