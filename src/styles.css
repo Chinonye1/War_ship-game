@@ -28,7 +28,8 @@ body {
     height: 100vh;
     position: relative;
     overflow: hidden;
-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    
 
 }
 
