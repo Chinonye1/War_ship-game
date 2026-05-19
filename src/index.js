@@ -3,8 +3,13 @@ class PlayerWarship {
     this.width = 100;
     this.height = 50;
     this.speed = 5;
+    this.maxLife = 10;
+    this.life = this.maxLife;
+    this.isDead = false;
+    this.direction = 'up';
     this.warshipAction = document.getElementById('player-warship');
     this.container = this.warshipAction?.parentElement || document.body;
+    this.lifeLabel = this.createLifeLabel();
     this.positionX = Math.max(0, this.container.clientWidth / 2 - this.width / 2);
     this.positionY = Math.max(0, this.container.clientHeight - this.height - 10);
     this.motion();
@@ -17,24 +22,29 @@ class PlayerWarship {
     this.warshipAction.style.width = this.width + 'px';
     this.warshipAction.style.height = this.height + 'px';
     this.getPosition();
+    this.updateLifeLabel();
   }
 
   motionLeft() {
+    this.direction = 'left';
     const minX = 0;
     this.positionX = Math.max(minX, this.positionX - this.speed);
     this.motion();
   }
   motionRight() {
+    this.direction = 'right';
     const maxX = this.container.clientWidth - this.width;
     this.positionX = Math.min(maxX, this.positionX + this.speed);
     this.motion();
   }
 
   motionUp() {
+    this.direction = 'up';
     this.positionY = Math.max(0, this.positionY - this.speed);
     this.motion();
   }
   motionDown() {
+    this.direction = 'down';
     const maxY = this.container.clientHeight - this.height;
     this.positionY = Math.min(maxY, this.positionY + this.speed);
     this.motion();
@@ -44,11 +54,70 @@ class PlayerWarship {
   getPosition() {
     return { x: this.positionX, y: this.positionY };
   }
+
+  createLifeLabel() {
+    if (!this.warshipAction) {
+      return null;
+    }
+
+    const bar = document.createElement('div');
+    bar.className = 'life-bar life-bar-player';
+    const fill = document.createElement('div');
+    fill.className = 'life-fill life-fill-player';
+    bar.appendChild(fill);
+    this.warshipAction.appendChild(bar);
+    return { bar, fill };
+  }
+
+  updateLifeLabel() {
+    if (!this.lifeLabel) {
+      return;
+    }
+    const percent = Math.max(0, Math.min(100, (this.life / this.maxLife) * 100));
+    this.lifeLabel.fill.style.width = `${percent}%`;
+  }
+
+  takeDamage(amount) {
+    if (this.isDead) {
+      return;
+    }
+    this.life = Math.max(0, this.life - amount);
+    this.updateLifeLabel();
+    if (this.life === 0) {
+      this.isDead = true;
+      if (!gameEnded) {
+        gameEnded = true;
+        window.location.href = './gemeOver.html';
+      }
+    }
+  }
 }
 const newPlayer = new PlayerWarship();
 
 const enemies = [];
 const SPAWN_GAP = 20;
+const MAX_ENEMIES = 6;
+const WIN_KILLS = 5;
+let kills = 0;
+let gameEnded = false;
+
+function createScoreboard() {
+  const board = document.createElement('div');
+  board.className = 'scoreboard';
+  board.textContent = `Kills: ${kills}/${WIN_KILLS}`;
+  const seaboard = document.getElementById('seaboard');
+  (seaboard || document.body).appendChild(board);
+  return board;
+}
+
+const scoreboard = createScoreboard();
+
+function updateScoreboard() {
+  if (!scoreboard) {
+    return;
+  }
+  scoreboard.textContent = `Kills: ${kills}/${WIN_KILLS}`;
+}
 
 function rectanglesOverlap(a, b) {
   return (
@@ -93,8 +162,12 @@ class EnemyWarship {
     this.width = 100;
     this.height = 50;
     this.speed = 1;
+    this.maxLife = 5;
+    this.life = this.maxLife;
+    this.isDestroyed = false;
     this.el = element;
     this.container = this.el.parentElement || document.body;
+    this.lifeLabel = this.createLifeLabel();
     this.positionX = startX;
     this.positionY = startY;
     this.updateDom();
@@ -107,6 +180,7 @@ class EnemyWarship {
     this.el.style.top = this.positionY + 'px';
     this.el.style.width = this.width + 'px';
     this.el.style.height = this.height + 'px';
+    this.updateLifeLabel();
   }
 
   chasePlayer() {
@@ -134,6 +208,9 @@ class EnemyWarship {
   }
 
   checkCollision(player) {
+    if (this.isDestroyed) {
+      return;
+    }
     const hit =
       this.positionX < player.x + newPlayer.width &&
       this.positionX + this.width > player.x &&
@@ -141,20 +218,61 @@ class EnemyWarship {
       this.positionY + this.height > player.y;
 
     if (hit) {
-      window.location.href = './gemeOver.html';
+      newPlayer.takeDamage(1);
+      this.takeDamage(this.life);
     }
   }
 
   destroy() {
+    if (this.isDestroyed) {
+      return;
+    }
+    this.isDestroyed = true;
     clearInterval(this.chaseInterval);
     clearInterval(this.shootInterval);
     this.el.remove();
+    const idx = enemies.indexOf(this);
+    if (idx !== -1) {
+      enemies.splice(idx, 1);
+    }
   }
 
   shoot() {
+    if (this.isDestroyed) {
+      return;
+    }
     const bulletX = this.positionX + this.width / 2 - 4;
     const bulletY = this.positionY + this.height;
-    enemyBullets.push(new Bullet(bulletX, bulletY, 4, 'enemy'));
+    enemyBullets.push(new Bullet(bulletX, bulletY, 0, 4, 'enemy'));
+  }
+
+  createLifeLabel() {
+    const bar = document.createElement('div');
+    bar.className = 'life-bar life-bar-enemy';
+    const fill = document.createElement('div');
+    fill.className = 'life-fill life-fill-enemy';
+    bar.appendChild(fill);
+    this.el.appendChild(bar);
+    return { bar, fill };
+  }
+
+  updateLifeLabel() {
+    if (!this.lifeLabel) {
+      return;
+    }
+    const percent = Math.max(0, Math.min(100, (this.life / this.maxLife) * 100));
+    this.lifeLabel.fill.style.width = `${percent}%`;
+  }
+
+  takeDamage(amount) {
+    if (this.isDestroyed) {
+      return;
+    }
+    this.life = Math.max(0, this.life - amount);
+    this.updateLifeLabel();
+    if (this.life === 0) {
+      this.destroy();
+    }
   }
 }
 function addElement() {
@@ -164,7 +282,11 @@ function addElement() {
     return;
   }
 
-  if (enemies.length >= 6) {
+  if (gameEnded) {
+    return;
+  }
+
+  if (enemies.length >= MAX_ENEMIES) {
     return;
   }
 
@@ -212,7 +334,7 @@ function addElement() {
   newWarship.style.position = 'absolute';
   newWarship.style.width = `${width}px`;
   newWarship.style.height = `${height}px`;
-  newWarship.style.backgroundColor = 'red';
+  newWarship.style.backgroundColor = 'transparent';
   newWarship.style.zIndex = '2';
   newWarship.style.left = `${spawn.x}px`;
   newWarship.style.top = `${spawn.y}px`;
@@ -228,9 +350,10 @@ const playerBullets = [];
 const enemyBullets = [];
 
 class Bullet {
-  constructor(x, y, dy, owner) {
+  constructor(x, y, dx, dy, owner) {
     this.width = 8;
     this.height = 16;
+    this.dx = dx;
     this.dy = dy;
     this.owner = owner;
     this.el = document.createElement('div');
@@ -252,13 +375,20 @@ class Bullet {
   }
 
   update() {
+    this.positionX += this.dx;
     this.positionY += this.dy;
     this.updateDom();
   }
 
   isOffscreen() {
     const maxY = this.container.clientHeight;
-    return this.positionY < -this.height || this.positionY > maxY + this.height;
+    const maxX = this.container.clientWidth;
+    return (
+      this.positionY < -this.height ||
+      this.positionY > maxY + this.height ||
+      this.positionX < -this.width ||
+      this.positionX > maxX + this.width
+    );
   }
 
   destroy() {
@@ -281,8 +411,15 @@ function updateBullets() {
       if (hitEnemy) {
         bullet.destroy();
         playerBullets.splice(i, 1);
-        enemy.destroy();
-        enemies.splice(j, 1);
+        enemy.takeDamage(1);
+        if (enemy.isDestroyed) {
+          kills += 1;
+          updateScoreboard();
+          if (kills >= WIN_KILLS && !gameEnded) {
+            gameEnded = true;
+            window.location.href = './win.html';
+          }
+        }
         break;
       }
     }
@@ -314,7 +451,7 @@ function updateBullets() {
     if (hitPlayer) {
       bullet.destroy();
       enemyBullets.splice(i, 1);
-      window.location.href = './gemeOver.html';
+      newPlayer.takeDamage(1);
       return;
     }
 
@@ -339,9 +476,27 @@ document.addEventListener('keydown', (e) => {
   }
 
   if (e.code === 'Space') {
-    const bulletX = newPlayer.positionX + newPlayer.width / 2 - 4;
-    const bulletY = newPlayer.positionY - 16;
-    playerBullets.push(new Bullet(bulletX, bulletY, -6, 'player'));
+    let bulletX = newPlayer.positionX + newPlayer.width / 2 - 4;
+    let bulletY = newPlayer.positionY - 16;
+    let dx = 0;
+    let dy = -6;
+
+    if (newPlayer.direction === 'down') {
+      bulletY = newPlayer.positionY + newPlayer.height;
+      dy = 6;
+    } else if (newPlayer.direction === 'left') {
+      bulletX = newPlayer.positionX - 16;
+      bulletY = newPlayer.positionY + newPlayer.height / 2 - 4;
+      dx = -6;
+      dy = 0;
+    } else if (newPlayer.direction === 'right') {
+      bulletX = newPlayer.positionX + newPlayer.width;
+      bulletY = newPlayer.positionY + newPlayer.height / 2 - 4;
+      dx = 6;
+      dy = 0;
+    }
+
+    playerBullets.push(new Bullet(bulletX, bulletY, dx, dy, 'player'));
   }
 
   if (e.code === 'ArrowRight') {
