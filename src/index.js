@@ -1,9 +1,9 @@
 class PlayerWarship {
   constructor() {
-    this.width = 100;
-    this.height = 50;
+    this.width = 170;
+    this.height = 130;
     this.speed = 5;
-    this.maxLife = 10;
+    this.maxLife = 15;
     this.life = this.maxLife;
     this.isDead = false;
     this.direction = 'up';
@@ -184,10 +184,10 @@ function createExplosion(container, x, y) {
 
 class EnemyWarship {
   constructor(element, startX, startY) {
-    this.width = 100;
-    this.height = 50;
+    this.width = 200;
+    this.height = 120;
     this.speed = 1;
-    this.maxLife = 5;
+    this.maxLife = 10;
     this.life = this.maxLife;
     this.isDestroyed = false;
     this.el = element;
