@@ -183,16 +183,20 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    letter-spacing: 0.3px;
+    padding: 10px 16px;
+    font-size: 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    color: #00ffd5;
+    background: rgba(0, 20, 30, 0.7);
+    border: 2px solid rgba(0, 255, 213, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 213, 0.3), inset 0 0 10px rgba(0, 255, 213, 0.2);
+    border-radius: 6px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px #00ffd5;
     z-index: 6;
     pointer-events: none;
+    line-height: 1.5;
 }
 
 /* Modal Overlay */
@@ -210,55 +214,69 @@ body {
 }
 
 .modal-content {
-    background: #0b2f3f;
-    border: 2px solid #0f6b7a;
-    box-shadow: 0 0 20px rgba(0, 180, 200, 0.5);
-    padding: 30px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #0b2f3f, #05141c);
+    border: 3px solid #00ffd5;
+    box-shadow: 0 0 25px rgba(0, 255, 213, 0.4), inset 0 0 15px rgba(0, 255, 213, 0.2);
+    padding: 40px;
+    border-radius: 8px;
     text-align: center;
     color: white;
-    font-family: sans-serif;
+    font-family: 'Orbitron', Arial, sans-serif;
     max-width: 90%;
+    backdrop-filter: blur(5px);
 }
 
 .modal-content h2 {
     margin-top: 0;
-    font-size: 28px;
-    text-shadow: 0 0 10px rgba(0, 180, 200, 0.8);
+    font-size: 36px;
+    font-family: 'Black Ops One', cursive;
+    color: #ffa600;
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(255, 166, 0, 0.8), 2px 2px 0px rgba(255, 60, 0, 0.8);
+    text-transform: uppercase;
 }
 
 .difficulty-buttons {
     display: flex;
     gap: 15px;
-    margin: 20px 0;
+    margin: 25px 0;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 .diff-btn {
-    padding: 10px 20px;
+    padding: 12px 25px;
     font-size: 18px;
-    font-weight: bold;
+    font-family: 'Black Ops One', cursive;
+    letter-spacing: 2px;
     cursor: pointer;
-    background: #0f6b7a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    transition: 0.2s;
+    background: transparent;
+    color: #00ffd5;
+    border: 2px solid #00ffd5;
+    border-radius: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(0, 255, 213, 0.2);
+    transition: all 0.2s ease-in-out;
 }
 
 .diff-btn:hover {
-    background: #00b4c8;
-    transform: scale(1.05);
+    background: #00ffd5;
+    color: #05141c;
+    box-shadow: 0 0 20px rgba(0, 255, 213, 0.6);
+    transform: scale(1.05) translateY(-2px);
 }
 
 .diff-btn:active {
     transform: scale(0.95);
+    box-shadow: 0 0 5px rgba(0, 255, 213, 0.6);
 }
 
-#diff-desc {
-    font-size: 14px;
-    color: #ccc;
+#diff-desc, #next-level-desc {
+    font-size: 16px;
+    color: #a0d8e0;
+    margin-bottom: 20px;
+    text-shadow: 0 0 5px rgba(0, 180, 200, 0.5);
+    line-height: 1.5;
 }
 
 @keyframes drift {
@@ -316,9 +334,9 @@ body {
 
 .control-btn {
     pointer-events: auto;
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    color: white;
+    background: rgba(0, 40, 50, 0.4);
+    border: 2px solid rgba(0, 255, 213, 0.4);
+    color: #00ffd5;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -329,10 +347,13 @@ body {
     user-select: none;
     touch-action: manipulation;
     cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 255, 213, 0.2);
+    font-family: 'Orbitron', sans-serif;
 }
 
 .control-btn:active {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 255, 213, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 213, 0.5);
 }
 
 #dpad {
@@ -351,12 +372,18 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    font-size: 20px;
-    font-weight: bold;
-    background: rgba(255, 60, 60, 0.3);
-    border-color: rgba(255, 60, 60, 0.6);
+    font-size: 18px;
+    font-family: 'Black Ops One', cursive;
+    letter-spacing: 1px;
+    background: rgba(255, 60, 60, 0.2);
+    border-color: rgba(255, 60, 60, 0.8);
+    color: #ff6b6b;
+    box-shadow: 0 0 15px rgba(255, 60, 60, 0.3);
+    text-shadow: 0 0 5px #ff6b6b;
 }
 
 .action-btn:active {
-    background: rgba(255, 60, 60, 0.6);
+    background: rgba(255, 60, 60, 0.5);
+    box-shadow: 0 0 25px rgba(255, 60, 60, 0.6);
+    color: white;
 }

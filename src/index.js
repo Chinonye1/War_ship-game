@@ -159,6 +159,7 @@ const BULLET_DAMAGE = 1;
 const COLLISION_DAMAGE = 5;
 
 let kills = 0;
+let money = 0;
 let gameEnded = false;
 let gameStarted = false;
 let currentDifficulty = null;
@@ -168,7 +169,7 @@ let bulletsIntervalId = null;
 function createScoreboard() {
   const board = document.createElement('div');
   board.className = 'scoreboard';
-  board.textContent = `Kills: ${kills}/${WIN_KILLS}`;
+  board.innerHTML = `Kills: ${kills}/${WIN_KILLS} <br> Money: $${money}`;
 
   const seaboard = document.getElementById('seaboard');
   (seaboard || document.body).appendChild(board);
@@ -183,7 +184,7 @@ function updateScoreboard() {
     return;
   }
 
-  scoreboard.textContent = `Kills: ${kills}/${WIN_KILLS}`;
+  scoreboard.innerHTML = `Kills: ${kills}/${WIN_KILLS} <br> Money: $${money}`;
 }
 
 function rectanglesOverlap(a, b) {
@@ -333,14 +334,23 @@ class EnemyWarship {
   }
 
   shoot() {
-    if (this.isDestroyed) {
+    if (this.isDestroyed || gameEnded || !gameStarted) {
       return;
     }
 
     const bulletX = this.positionX + this.width / 2 - 4;
-    const bulletY = this.positionY + this.height;
+    const bulletY = this.positionY + this.height / 2;
 
-    enemyBullets.push(new Bullet(bulletX, bulletY, 0, 4, 'enemy'));
+    const player = newPlayer.getPosition();
+    const targetX = player.x + newPlayer.width / 2;
+    const targetY = player.y + newPlayer.height / 2;
+
+    const angle = Math.atan2(targetY - bulletY, targetX - bulletX);
+    const speed = 4;
+    const dx = Math.cos(angle) * speed;
+    const dy = Math.sin(angle) * speed;
+
+    enemyBullets.push(new Bullet(bulletX, bulletY, dx, dy, 'enemy'));
   }
 
   createLifeLabel() {
@@ -544,6 +554,7 @@ function handleLevelComplete() {
 
 function resetForNextLevel() {
   kills = 0;
+  // Money persists across levels
   gameEnded = false;
 
   // Clear enemies
@@ -712,6 +723,12 @@ function updateBullets() {
 
         if (enemy.isDestroyed) {
           kills += 1;
+          money += 100; // Reward money for destructing a ship
+          
+          // Refill player life back to max as a reward
+          newPlayer.life = newPlayer.maxLife;
+          newPlayer.updateLifeLabel();
+          
           updateScoreboard();
 
           if (kills >= WIN_KILLS && !gameEnded) {
