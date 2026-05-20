@@ -2,6 +2,10 @@
 
 A browser-based arcade sea battle game where you pilot a warship, dodge enemy fire, and take down enemy ships to win.
 
+## Live Demo
+
+https://chinonye1.github.io/War_ship-game/
+
 ## How to Play
 
 - Move: Arrow keys
