@@ -1,0 +1,6 @@
+.DS_Store
+.vscode/
+.prettierrc
+node_modules/
+dist/
+build/
