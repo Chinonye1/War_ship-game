@@ -1,8 +1,9 @@
 class PlayerWarship {
   constructor() {
-    this.width = 170;
-    this.height = 130;
-    this.speed = 5;
+    const isMobile = window.innerWidth <= 768;
+    this.width = isMobile ? 85 : 170;
+    this.height = isMobile ? 65 : 130;
+    this.speed = isMobile ? 3 : 5;
     this.maxLife = 15;
     this.life = this.maxLife;
     this.isDead = false;
@@ -235,9 +236,10 @@ function createExplosion(container, x, y) {
 
 class EnemyWarship {
   constructor(element, startX, startY) {
-    this.width = 200;
-    this.height = 120;
-    this.speed = 1;
+    const isMobile = window.innerWidth <= 768;
+    this.width = isMobile ? 100 : 200;
+    this.height = isMobile ? 60 : 120;
+    this.speed = isMobile ? 0.7 : 1;
     this.maxLife = 10;
     this.life = this.maxLife;
     this.isDestroyed = false;
@@ -395,8 +397,9 @@ function addElement() {
     return;
   }
 
-  const width = 100;
-  const height = 50;
+  const isMobile = window.innerWidth <= 768;
+  const width = isMobile ? 50 : 100;
+  const height = isMobile ? 25 : 50;
 
   const playerBox = expandBox(
     {
@@ -730,3 +733,42 @@ function updatePlayerMovement() {
 }
 
 updatePlayerMovement();
+
+// Mobile controls setup
+const handleTouchStart = (key) => (e) => {
+  e.preventDefault();
+  pressedKeys.add(key);
+  unlockAudio();
+};
+
+const handleTouchEnd = (key) => (e) => {
+  e.preventDefault();
+  pressedKeys.delete(key);
+};
+
+const setupMobileButton = (id, key) => {
+  const btn = document.getElementById(id);
+  if (btn) {
+    btn.addEventListener('touchstart', handleTouchStart(key), { passive: false });
+    btn.addEventListener('touchend', handleTouchEnd(key), { passive: false });
+    btn.addEventListener('mousedown', handleTouchStart(key));
+    btn.addEventListener('mouseup', handleTouchEnd(key));
+    btn.addEventListener('mouseleave', handleTouchEnd(key));
+  }
+};
+
+setupMobileButton('up-btn', 'ArrowUp');
+setupMobileButton('down-btn', 'ArrowDown');
+setupMobileButton('left-btn', 'ArrowLeft');
+setupMobileButton('right-btn', 'ArrowRight');
+
+const shootBtn = document.getElementById('shoot-btn');
+if (shootBtn) {
+  const fireStart = (e) => {
+    e.preventDefault();
+    unlockAudio();
+    shootPlayerBullet();
+  };
+  shootBtn.addEventListener('touchstart', fireStart, { passive: false });
+  shootBtn.addEventListener('mousedown', fireStart);
+}

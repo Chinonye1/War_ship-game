@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>War Ship</title>
 <link rel="stylesheet" href="./src/styles.css">
 </head>
@@ -11,7 +11,21 @@
         <div id="player-warship"></div>
         <div id="opponents-warship"></div>
         <div id="bullets"></div>
-    </div>
+        
+        <!-- Mobile Controls -->
+        <div id="mobile-controls">
+            <div id="dpad">
+                <button id="up-btn" class="control-btn dir-btn">&#8593;</button>
+                <div class="dpad-middle">
+                    <button id="left-btn" class="control-btn dir-btn">&#8592;</button>
+                    <button id="right-btn" class="control-btn dir-btn">&#8594;</button>
+                </div>
+                <button id="down-btn" class="control-btn dir-btn">&#8595;</button>
+            </div>
+            <div id="action-buttons">
+                <button id="shoot-btn" class="control-btn action-btn">FIRE</button>
+            </div>
+        </div>
     </div>
     
     <script src="./src/index.js"></script>
