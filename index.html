@@ -7,6 +7,28 @@
 <link rel="stylesheet" href="./src/styles.css">
 </head>
 <body>
+    <!-- Start Game Modal -->
+    <div id="difficulty-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Warship Battle</h2>
+            <p id="diff-desc">Defeat enemies and progress through the increasingly difficult levels.</p>
+            <div class="difficulty-buttons">
+                <button id="btn-start" class="diff-btn" onclick="startGame('easy')">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Level Modal -->
+    <div id="next-level-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Level Complete!</h2>
+            <p id="next-level-desc">Get ready for the next challenge.</p>
+            <div class="difficulty-buttons">
+                <button id="btn-next-level" class="diff-btn">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <div id="seaboard">
         <div id="player-warship"></div>
         <div id="opponents-warship"></div>

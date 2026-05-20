@@ -195,6 +195,72 @@ body {
     pointer-events: none;
 }
 
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background: #0b2f3f;
+    border: 2px solid #0f6b7a;
+    box-shadow: 0 0 20px rgba(0, 180, 200, 0.5);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    font-family: sans-serif;
+    max-width: 90%;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 28px;
+    text-shadow: 0 0 10px rgba(0, 180, 200, 0.8);
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.diff-btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #0f6b7a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.diff-btn:hover {
+    background: #00b4c8;
+    transform: scale(1.05);
+}
+
+.diff-btn:active {
+    transform: scale(0.95);
+}
+
+#diff-desc {
+    font-size: 14px;
+    color: #ccc;
+}
+
 @keyframes drift {
     0% {
         transform: translate3d(-2%, -2%, 0);

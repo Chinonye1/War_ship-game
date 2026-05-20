@@ -148,15 +148,22 @@ function playShootSound() {
 }
 
 const enemies = [];
-const SPAWN_GAP = 20;
-const MAX_ENEMIES = 6;
-const WIN_KILLS = 15;
+let SPAWN_GAP = 20;
+let MAX_ENEMIES = 6;
+let WIN_KILLS = 15;
+let ENEMY_SPEED_MULT = 1;
+let ENEMY_SHOOT_INTERVAL = 1200;
+let ENEMY_SPAWN_RATE = 3000;
 
 const BULLET_DAMAGE = 1;
 const COLLISION_DAMAGE = 5;
 
 let kills = 0;
 let gameEnded = false;
+let gameStarted = false;
+let currentDifficulty = null;
+let spawnIntervalId = null;
+let bulletsIntervalId = null;
 
 function createScoreboard() {
   const board = document.createElement('div');
@@ -239,7 +246,7 @@ class EnemyWarship {
     const isMobile = window.innerWidth <= 768;
     this.width = isMobile ? 100 : 200;
     this.height = isMobile ? 60 : 120;
-    this.speed = isMobile ? 0.7 : 1;
+    this.speed = (isMobile ? 0.7 : 1) * ENEMY_SPEED_MULT;
     this.maxLife = 10;
     this.life = this.maxLife;
     this.isDestroyed = false;
@@ -252,7 +259,7 @@ class EnemyWarship {
     this.updateDom();
 
     this.chaseInterval = setInterval(() => this.chasePlayer(), 100);
-    this.shootInterval = setInterval(() => this.shoot(), 1200);
+    this.shootInterval = setInterval(() => this.shoot(), ENEMY_SHOOT_INTERVAL);
   }
 
   updateDom() {
@@ -463,8 +470,111 @@ function addElement() {
   enemies.push(new EnemyWarship(newWarship, spawn.x, spawn.y));
 }
 
-addElement();
-setInterval(addElement, 3000);
+function startGame(difficulty) {
+  const modal = document.getElementById('difficulty-modal');
+  if (modal) modal.style.display = 'none';
+
+  currentDifficulty = difficulty;
+
+  if (difficulty === 'easy') {
+    MAX_ENEMIES = 4;
+    WIN_KILLS = 10;
+    ENEMY_SPEED_MULT = 0.7;
+    ENEMY_SHOOT_INTERVAL = 1500;
+    ENEMY_SPAWN_RATE = 4000;
+  } else if (difficulty === 'hard') {
+    MAX_ENEMIES = 8;
+    WIN_KILLS = 25;
+    ENEMY_SPEED_MULT = 1.6;
+    ENEMY_SHOOT_INTERVAL = 800;
+    ENEMY_SPAWN_RATE = 1500;
+  } else {
+    // Normal
+    MAX_ENEMIES = 6;
+    WIN_KILLS = 15;
+    ENEMY_SPEED_MULT = 1;
+    ENEMY_SHOOT_INTERVAL = 1200;
+    ENEMY_SPAWN_RATE = 3000;
+  }
+
+  updateScoreboard();
+  gameStarted = true;
+  unlockAudio();
+
+  addElement();
+  spawnIntervalId = setInterval(addElement, ENEMY_SPAWN_RATE);
+  bulletsIntervalId = setInterval(updateBullets, 16);
+  updatePlayerMovement();
+}
+
+function handleLevelComplete() {
+  gameStarted = false; // Pause actions
+  clearInterval(spawnIntervalId);
+  clearInterval(bulletsIntervalId);
+
+  let nextDiff = null;
+  let levelName = '';
+  if (currentDifficulty === 'easy') {
+    nextDiff = 'normal';
+    levelName = 'Level 2: Normal';
+  } else if (currentDifficulty === 'normal') {
+    nextDiff = 'hard';
+    levelName = 'Level 3: Hard';
+  }
+
+  if (!nextDiff) {
+    // Finished Hard
+    window.location.href = './src/win.html';
+    return;
+  }
+
+  // Show "Next Level" Modal
+  const nextModal = document.getElementById('next-level-modal');
+  if (nextModal) {
+    nextModal.style.display = 'flex';
+    document.getElementById('next-level-desc').textContent = `Get ready for ${levelName}!`;
+    const nextBtn = document.getElementById('btn-next-level');
+    nextBtn.onclick = () => {
+      nextModal.style.display = 'none';
+      resetForNextLevel();
+      startGame(nextDiff);
+    };
+  }
+}
+
+function resetForNextLevel() {
+  kills = 0;
+  gameEnded = false;
+
+  // Clear enemies
+  for (const enemy of [...enemies]) {
+    enemy.isDestroyed = true;
+    clearInterval(enemy.chaseInterval);
+    clearInterval(enemy.shootInterval);
+    enemy.el.remove();
+  }
+  enemies.length = 0;
+
+  // Clear bullets
+  for (const bullet of [...playerBullets, ...enemyBullets]) {
+    bullet.destroy();
+  }
+  playerBullets.length = 0;
+  enemyBullets.length = 0;
+
+  // Reset player (optional full heal, but maybe just reset position)
+  newPlayer.isDead = false;
+  newPlayer.life = newPlayer.maxLife;
+  newPlayer.updateLifeLabel();
+  if (newPlayer.warshipAction) {
+    newPlayer.warshipAction.style.display = 'block';
+  }
+  newPlayer.positionX = Math.max(0, newPlayer.container.clientWidth / 2 - newPlayer.width / 2);
+  newPlayer.positionY = Math.max(0, newPlayer.container.clientHeight - newPlayer.height - 10);
+  newPlayer.motion();
+  
+  updateScoreboard();
+}
 
 const playerBullets = [];
 const enemyBullets = [];
@@ -522,7 +632,7 @@ class Bullet {
 }
 
 function shootPlayerBullet() {
-  if (gameEnded || newPlayer.isDead) {
+  if (!gameStarted || gameEnded || newPlayer.isDead) {
     return;
   }
 
@@ -605,8 +715,7 @@ function updateBullets() {
           updateScoreboard();
 
           if (kills >= WIN_KILLS && !gameEnded) {
-            gameEnded = true;
-            window.location.href = './src/win.html';
+            handleLevelComplete();
           }
         }
 
@@ -658,8 +767,6 @@ function updateBullets() {
   }
 }
 
-setInterval(updateBullets, 16);
-
 const pressedKeys = new Set();
 
 document.addEventListener('keydown', (e) => {
@@ -682,6 +789,10 @@ document.addEventListener('keyup', (e) => {
 });
 
 function updatePlayerMovement() {
+  if (!gameStarted) {
+    return; // Will be started by startGame
+  }
+
   if (gameEnded || newPlayer.isDead) {
     requestAnimationFrame(updatePlayerMovement);
     return;
