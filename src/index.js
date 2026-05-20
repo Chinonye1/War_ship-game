@@ -98,12 +98,35 @@ class PlayerWarship {
       }
       if (!gameEnded) {
         gameEnded = true;
-        window.location.href = './gemeOver.html';
+        window.location.href = './src/gemeOver.html';
       }
     }
   }
 }
 const newPlayer = new PlayerWarship();
+
+const backgroundSound = new Audio('./src/sound/backgroundmusic.mp3');
+backgroundSound.loop = true;
+backgroundSound.volume = 0.35;
+
+const shootingSound = new Audio('./src/sound/shooting%20sound.mp3');
+shootingSound.volume = 0.6;
+
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) {
+    return;
+  }
+  audioUnlocked = true;
+  backgroundSound.play().catch(() => {});
+}
+
+function playShootSound() {
+  const shot = shootingSound.cloneNode();
+  shot.volume = shootingSound.volume;
+  shot.play().catch(() => {});
+}
 
 const enemies = [];
 const SPAWN_GAP = 20;
@@ -131,12 +154,7 @@ function updateScoreboard() {
 }
 
 function rectanglesOverlap(a, b) {
-  return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
-  );
+  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
 }
 
 function expandBox(box, padding) {
@@ -415,12 +433,7 @@ class Bullet {
   isOffscreen() {
     const maxY = this.container.clientHeight;
     const maxX = this.container.clientWidth;
-    return (
-      this.positionY < -this.height ||
-      this.positionY > maxY + this.height ||
-      this.positionX < -this.width ||
-      this.positionX > maxX + this.width
-    );
+    return this.positionY < -this.height || this.positionY > maxY + this.height || this.positionX < -this.width || this.positionX > maxX + this.width;
   }
 
   destroy() {
@@ -449,7 +462,7 @@ function updateBullets() {
           updateScoreboard();
           if (kills >= WIN_KILLS && !gameEnded) {
             gameEnded = true;
-            window.location.href = './win.html';
+            window.location.href = './src/win.html';
           }
         }
         break;
@@ -496,11 +509,8 @@ function updateBullets() {
 
 setInterval(updateBullets, 16);
 
-
-
-
-
 document.addEventListener('keydown', (e) => {
+  unlockAudio();
   console.log(e);
   // Prevent the page from scrolling when using arrow keys
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
@@ -529,6 +539,7 @@ document.addEventListener('keydown', (e) => {
     }
 
     playerBullets.push(new Bullet(bulletX, bulletY, dx, dy, 'player'));
+    playShootSound();
   }
 
   if (e.code === 'ArrowRight') {
