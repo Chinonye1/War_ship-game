@@ -1,106 +1,49 @@
-# WARSHIP GAME
+# Warship Game
 
-## Implement the seaboard
+A browser-based arcade sea battle game where you pilot a warship, dodge enemy fire, and take down enemy ships to win.
 
-- Create a game folder.
+## How to Play
 
-- Add index.html, style.css, and script.js.
+- Move: Arrow keys
+- Shoot: Space bar
+- Aim: Your last movement direction (up, down, left, right)
 
-- Write the basic HTML page structure.
+## Rules
 
-- Add the seaboard styling in CSS.
+- You start with 15 HP.
+- Enemy ships have 10 HP each.
+- Your shots reduce enemy HP; enemy shots reduce your HP.
+- Colliding with an enemy deals damage.
+- Reach 5 enemy kills to win.
+- If your HP reaches 0, you lose.
 
-- Create a Seaboard class in JavaScript.
+## Win and Lose
 
+- Win screen: You destroy 5 enemy ships.
+- Defeat screen: Your ship HP reaches 0.
 
+## Features
 
-##  Add the player warship to the seaboard
+- Dynamic enemy spawns with spacing
+- Health bars over each ship
+- Player and enemy shooting
+- Explosion and damage flash effects
+- Background music and shooting sound
 
-- Create a Player class.
+## Run Locally
 
-- Add the required properties and methods.
-- Display the player warship on the seaboard.
+Open the root index file in a local server:
 
+- index.html
 
+If you use VS Code Live Server, start it from the project root.
 
-## Add movement controls for the player warship
+## Controls Summary
 
-- Add keyboard event listeners.
+- Arrow keys: Move and aim
+- Space: Fire
 
-- Allow the player warship to move within the seaboard.
+## Notes
 
-
-
-##  Add multiple opponent warships
-
-- Create an OpponentShip class.
-
-- Display multiple opponent ships on the seaboard.
-
-
-
-## Make opponent warships appear at timed intervals
-
-- Use time intervals to create opponent ships.
-
-- Control how often opponent ships appear.
-
-
-
-## Add missile/shooting functionality for the player
-
-- Create a Missile class.
-
-- Allow the player to shoot missiles.
-
-
-## Detect collisions between the player and opponent ships
-
-- Check when the player ship touches an opponent ship.
-- Add Event listeners
-
-## Detect missile hits on opponent ships
-
-- Check when a missile hits an opponent ship.
-
-## Add life status to the player and opponent ships
-
-- Give each ship a life value.
-
-- Display the life status visually.
-
-
-## 10. Reduce ship life after collisions or missile hits
-
-- Reduce life when ships collide.
-
-- Reduce opponent life when hit by missiles.
-
-## Destroy and remove ships when life reaches zero
-
-- Remove any ship whose life value becomes zero.
-
-## Increase the score when an opponent ship is destroyed
-
-- Add a score counter.
-
-- Increase the score after destroying an opponent ship.
-
-## Limit each game round to a maximum of 5 opponent ships
-
-
-## Track how many opponent ships appear in each round.
-
-- Stop creating opponents after 5 ships.
-
-## End the round when all opponent ships are destroyed or leave the seaboard
-
-- Check if the round is complete.
-
-- Show a round-complete message.
-
-## Add game-over functionality
-
-- End the game when the player ship is destroyed.
-
-- Show a game-over message.# War_ship-game
+- Audio starts on first key press due to browser policies.
+- Images and audio are loaded from the images/ and src/sound/ folders.
