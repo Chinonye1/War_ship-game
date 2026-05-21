@@ -1,9 +1,73 @@
+function isTouchDevice() {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+function getScreenTier() {
+  const width = window.innerWidth;
+
+  if (isTouchDevice() && width <= 1366) {
+    return 'tablet';
+  }
+
+  if (width <= 768) {
+    return 'mobile';
+  }
+
+  if (width <= 1024) {
+    return 'tablet';
+  }
+
+  return 'desktop';
+}
+
+function getPlayerStats() {
+  const tier = getScreenTier();
+
+  if (tier === 'mobile') {
+    return { width: 85, height: 65, speed: 3 };
+  }
+
+  if (tier === 'tablet') {
+    return { width: 120, height: 92, speed: 4 };
+  }
+
+  return { width: 170, height: 130, speed: 5 };
+}
+
+function getEnemyStats() {
+  const tier = getScreenTier();
+
+  if (tier === 'mobile') {
+    return { width: 100, height: 60, speed: 0.7 };
+  }
+
+  if (tier === 'tablet') {
+    return { width: 150, height: 90, speed: 0.85 };
+  }
+
+  return { width: 200, height: 120, speed: 1 };
+}
+
+function getSpawnSize() {
+  const tier = getScreenTier();
+
+  if (tier === 'mobile') {
+    return { width: 50, height: 25 };
+  }
+
+  if (tier === 'tablet') {
+    return { width: 75, height: 38 };
+  }
+
+  return { width: 100, height: 50 };
+}
+
 class PlayerWarship {
   constructor() {
-    const isMobile = window.innerWidth <= 768;
-    this.width = isMobile ? 85 : 170;
-    this.height = isMobile ? 65 : 130;
-    this.speed = isMobile ? 3 : 5;
+    const stats = getPlayerStats();
+    this.width = stats.width;
+    this.height = stats.height;
+    this.speed = stats.speed;
     this.maxLife = 15;
     this.life = this.maxLife;
     this.isDead = false;
@@ -244,10 +308,10 @@ function createExplosion(container, x, y) {
 
 class EnemyWarship {
   constructor(element, startX, startY) {
-    const isMobile = window.innerWidth <= 768;
-    this.width = isMobile ? 100 : 200;
-    this.height = isMobile ? 60 : 120;
-    this.speed = (isMobile ? 0.7 : 1) * ENEMY_SPEED_MULT;
+    const stats = getEnemyStats();
+    this.width = stats.width;
+    this.height = stats.height;
+    this.speed = stats.speed * ENEMY_SPEED_MULT;
     this.maxLife = 10;
     this.life = this.maxLife;
     this.isDestroyed = false;
@@ -414,9 +478,9 @@ function addElement() {
     return;
   }
 
-  const isMobile = window.innerWidth <= 768;
-  const width = isMobile ? 50 : 100;
-  const height = isMobile ? 25 : 50;
+  const spawnSize = getSpawnSize();
+  const width = spawnSize.width;
+  const height = spawnSize.height;
 
   const playerBox = expandBox(
     {
