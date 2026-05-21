@@ -226,14 +226,31 @@ let kills = 0;
 let money = 0;
 let gameEnded = false;
 let gameStarted = false;
-let currentDifficulty = null;
+let currentLevel = 1;
 let spawnIntervalId = null;
 let bulletsIntervalId = null;
+
+function getPlayerAmmoCap(level) {
+  const expectedKills = 10 + level * 5;
+  return Math.max(expectedKills * 4, expectedKills * 2 + 18);
+}
+
+let playerAmmoCap = getPlayerAmmoCap(currentLevel);
+let playerAmmo = playerAmmoCap;
+
+function applyLevelSettings(level) {
+  // Stronger challenge curve: more enemies and faster pressure per level.
+  MAX_ENEMIES = Math.min(7 + level * 2, 28);
+  WIN_KILLS = 10 + level * 5;
+  ENEMY_SPEED_MULT = Math.min(1 + level * 0.18, 4.2);
+  ENEMY_SHOOT_INTERVAL = Math.max(320, 1400 - (level - 1) * 95);
+  ENEMY_SPAWN_RATE = Math.max(450, 2200 - (level - 1) * 170);
+}
 
 function createScoreboard() {
   const board = document.createElement('div');
   board.className = 'scoreboard';
-  board.innerHTML = `Kills: ${kills}/${WIN_KILLS} <br> Money: $${money}`;
+  board.innerHTML = `Level: ${currentLevel} <br> Kills: ${kills}/${WIN_KILLS} <br> Ammo: ${playerAmmo}/${playerAmmoCap} <br> Money: $${money}`;
 
   const seaboard = document.getElementById('seaboard');
   (seaboard || document.body).appendChild(board);
@@ -248,7 +265,9 @@ function updateScoreboard() {
     return;
   }
 
-  scoreboard.innerHTML = `Kills: ${kills}/${WIN_KILLS} <br> Money: $${money}`;
+  scoreboard.classList.toggle('ammo-low', playerAmmo > 0 && playerAmmo <= 5);
+  scoreboard.classList.toggle('ammo-empty', playerAmmo === 0);
+  scoreboard.innerHTML = `Level: ${currentLevel} <br> Kills: ${kills}/${WIN_KILLS} <br> Ammo: ${playerAmmo}/${playerAmmoCap} <br> Money: $${money}`;
 }
 
 function rectanglesOverlap(a, b) {
@@ -312,7 +331,7 @@ class EnemyWarship {
     this.width = stats.width;
     this.height = stats.height;
     this.speed = stats.speed * ENEMY_SPEED_MULT;
-    this.maxLife = 10;
+    this.maxLife = 2;
     this.life = this.maxLife;
     this.isDestroyed = false;
     this.el = element;
@@ -544,32 +563,20 @@ function addElement() {
   enemies.push(new EnemyWarship(newWarship, spawn.x, spawn.y));
 }
 
-function startGame(difficulty) {
+function startGame(levelInput) {
   const modal = document.getElementById('difficulty-modal');
   if (modal) modal.style.display = 'none';
 
-  currentDifficulty = difficulty;
-
-  if (difficulty === 'easy') {
-    MAX_ENEMIES = 4;
-    WIN_KILLS = 10;
-    ENEMY_SPEED_MULT = 0.7;
-    ENEMY_SHOOT_INTERVAL = 1500;
-    ENEMY_SPAWN_RATE = 4000;
-  } else if (difficulty === 'hard') {
-    MAX_ENEMIES = 8;
-    WIN_KILLS = 25;
-    ENEMY_SPEED_MULT = 1.6;
-    ENEMY_SHOOT_INTERVAL = 800;
-    ENEMY_SPAWN_RATE = 1500;
+  if (typeof levelInput === 'number') {
+    currentLevel = Math.max(1, Math.floor(levelInput));
   } else {
-    // Normal
-    MAX_ENEMIES = 6;
-    WIN_KILLS = 15;
-    ENEMY_SPEED_MULT = 1;
-    ENEMY_SHOOT_INTERVAL = 1200;
-    ENEMY_SPAWN_RATE = 3000;
+    // Keep compatibility with existing HTML button call startGame('easy').
+    currentLevel = 1;
   }
+
+  applyLevelSettings(currentLevel);
+  playerAmmoCap = getPlayerAmmoCap(currentLevel);
+  playerAmmo = playerAmmoCap;
 
   updateScoreboard();
   gameStarted = true;
@@ -586,32 +593,18 @@ function handleLevelComplete() {
   clearInterval(spawnIntervalId);
   clearInterval(bulletsIntervalId);
 
-  let nextDiff = null;
-  let levelName = '';
-  if (currentDifficulty === 'easy') {
-    nextDiff = 'normal';
-    levelName = 'Level 2: Normal';
-  } else if (currentDifficulty === 'normal') {
-    nextDiff = 'hard';
-    levelName = 'Level 3: Hard';
-  }
-
-  if (!nextDiff) {
-    // Finished Hard
-    window.location.href = './src/win.html';
-    return;
-  }
+  const nextLevel = currentLevel + 1;
 
   // Show "Next Level" Modal
   const nextModal = document.getElementById('next-level-modal');
   if (nextModal) {
     nextModal.style.display = 'flex';
-    document.getElementById('next-level-desc').textContent = `Get ready for ${levelName}!`;
+    document.getElementById('next-level-desc').textContent = `Level ${nextLevel} incoming. Stronger enemies and faster attacks ahead!`;
     const nextBtn = document.getElementById('btn-next-level');
     nextBtn.onclick = () => {
       nextModal.style.display = 'none';
       resetForNextLevel();
-      startGame(nextDiff);
+      startGame(nextLevel);
     };
   }
 }
@@ -620,6 +613,8 @@ function resetForNextLevel() {
   kills = 0;
   // Money persists across levels
   gameEnded = false;
+  playerAmmoCap = getPlayerAmmoCap(currentLevel);
+  playerAmmo = playerAmmoCap;
 
   // Clear enemies
   for (const enemy of [...enemies]) {
@@ -724,6 +719,10 @@ function shootPlayerBullet() {
   if (!gameStarted || gameEnded || newPlayer.isDead) {
     return;
   }
+  if (playerAmmo <= 0) {
+    updateScoreboard();
+    return;
+  }
   // Simple targeting: if there's an enemy, shoot at the nearest one (any angle).
   // Otherwise fall back to keyboard/direction aiming (including diagonals).
   const BULLET_SPEED = 6;
@@ -795,6 +794,8 @@ function shootPlayerBullet() {
   const originY = newPlayer.positionY + newPlayer.height / 2 + uy * (newPlayer.height / 2) - BULLET_H / 2;
 
   playerBullets.push(new Bullet(originX, originY, dx, dy, 'player'));
+  playerAmmo = Math.max(0, playerAmmo - 1);
+  updateScoreboard();
   playShootSound();
 }
 
