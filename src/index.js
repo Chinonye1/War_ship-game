@@ -793,6 +793,36 @@ function updateBullets() {
     }
   }
 
+  // Bullet-vs-bullet collisions: destroy both bullets when they hit
+  for (let i = playerBullets.length - 1; i >= 0; i -= 1) {
+    const pb = playerBullets[i];
+    for (let j = enemyBullets.length - 1; j >= 0; j -= 1) {
+      const eb = enemyBullets[j];
+
+      const hit = rectanglesOverlap(
+        { x: pb.positionX, y: pb.positionY, width: pb.width, height: pb.height },
+        { x: eb.positionX, y: eb.positionY, width: eb.width, height: eb.height }
+      );
+
+      if (hit) {
+        // small explosion at collision point
+        const mx = (pb.positionX + eb.positionX) / 2;
+        const my = (pb.positionY + eb.positionY) / 2;
+        createExplosion(pb.container || document.getElementById('seaboard') || document.body, mx, my);
+
+        // remove both bullets
+        pb.destroy();
+        playerBullets.splice(i, 1);
+
+        eb.destroy();
+        enemyBullets.splice(j, 1);
+
+        // break inner loop and continue outer
+        break;
+      }
+    }
+  }
+
   for (let i = enemyBullets.length - 1; i >= 0; i -= 1) {
     const bullet = enemyBullets[i];
 
