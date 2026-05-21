@@ -1,13 +1,13 @@
 html {
     height: 100%;
-    background: var(--sea-deep);
+    background: var(--sea-deep) !important;
 }
 
 body {
     margin: 0;
     padding: 0;
     min-height: 100%;
-    background-color: var(--sea-deep);
+    background: var(--sea-deep) !important;
     overflow: hidden;
     touch-action: none;
 }
@@ -21,14 +21,15 @@ body {
 }
 
 #seaboard {
-    background-color: var(--sea-deep);
+    background: var(--sea-deep);
 
     background-position: center;
     background-repeat: no-repeat;
+    position: fixed;
+    inset: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     min-height: 100dvh;
-    position: relative;
     overflow: hidden;
     transform-style: preserve-3d;
 }
