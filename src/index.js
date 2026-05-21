@@ -660,48 +660,77 @@ function shootPlayerBullet() {
   if (!gameStarted || gameEnded || newPlayer.isDead) {
     return;
   }
+  // Simple targeting: if there's an enemy, shoot at the nearest one (any angle).
+  // Otherwise fall back to keyboard/direction aiming (including diagonals).
+  const BULLET_SPEED = 6;
 
-  let bulletX = newPlayer.positionX + newPlayer.width / 2 - 4;
-  let bulletY = newPlayer.positionY - 16;
-  let dx = 0;
-  let dy = -6;
-
-  if (newPlayer.direction === 'down') {
-    bulletY = newPlayer.positionY + newPlayer.height;
-    dy = 6;
-  } else if (newPlayer.direction === 'left') {
-    bulletX = newPlayer.positionX - 16;
-    bulletY = newPlayer.positionY + newPlayer.height / 2 - 4;
-    dx = -6;
-    dy = 0;
-  } else if (newPlayer.direction === 'right') {
-    bulletX = newPlayer.positionX + newPlayer.width;
-    bulletY = newPlayer.positionY + newPlayer.height / 2 - 4;
-    dx = 6;
-    dy = 0;
-  } else if (newPlayer.direction === 'up-left') {
-    bulletX = newPlayer.positionX - 16;
-    bulletY = newPlayer.positionY - 16;
-    dx = -6;
-    dy = -6;
-  } else if (newPlayer.direction === 'up-right') {
-    bulletX = newPlayer.positionX + newPlayer.width;
-    bulletY = newPlayer.positionY - 16;
-    dx = 6;
-    dy = -6;
-  } else if (newPlayer.direction === 'down-left') {
-    bulletX = newPlayer.positionX - 16;
-    bulletY = newPlayer.positionY + newPlayer.height;
-    dx = -6;
-    dy = 6;
-  } else if (newPlayer.direction === 'down-right') {
-    bulletX = newPlayer.positionX + newPlayer.width;
-    bulletY = newPlayer.positionY + newPlayer.height;
-    dx = 6;
-    dy = 6;
+  // find nearest enemy center
+  let target = null;
+  if (enemies.length > 0) {
+    const px = newPlayer.positionX + newPlayer.width / 2;
+    const py = newPlayer.positionY + newPlayer.height / 2;
+    let best = Infinity;
+    for (const e of enemies) {
+      const ex = e.positionX + e.width / 2;
+      const ey = e.positionY + e.height / 2;
+      const d = Math.hypot(ex - px, ey - py);
+      if (d < best) {
+        best = d;
+        target = { x: ex, y: ey };
+      }
+    }
   }
 
-  playerBullets.push(new Bullet(bulletX, bulletY, dx, dy, 'player'));
+  let ux, uy;
+  if (target) {
+    const px = newPlayer.positionX + newPlayer.width / 2;
+    const py = newPlayer.positionY + newPlayer.height / 2;
+    const vx = target.x - px;
+    const vy = target.y - py;
+    const mag = Math.hypot(vx, vy) || 1;
+    ux = vx / mag;
+    uy = vy / mag;
+  } else {
+    // keyboard / stored-direction fallback
+    let vx = 0;
+    let vy = 0;
+    if (pressedKeys.has('ArrowUp')) vy -= 1;
+    if (pressedKeys.has('ArrowDown')) vy += 1;
+    if (pressedKeys.has('ArrowLeft')) vx -= 1;
+    if (pressedKeys.has('ArrowRight')) vx += 1;
+
+    if (vx === 0 && vy === 0) {
+      const dir = newPlayer.direction || 'up';
+      const dirMap = {
+        up: { x: 0, y: -1 },
+        down: { x: 0, y: 1 },
+        left: { x: -1, y: 0 },
+        right: { x: 1, y: 0 },
+        'up-left': { x: -1, y: -1 },
+        'up-right': { x: 1, y: -1 },
+        'down-left': { x: -1, y: 1 },
+        'down-right': { x: 1, y: 1 },
+      };
+      const v = dirMap[dir] || dirMap.up;
+      vx = v.x;
+      vy = v.y;
+    }
+
+    const mag = Math.hypot(vx, vy) || 1;
+    ux = vx / mag;
+    uy = vy / mag;
+  }
+
+  const dx = ux * BULLET_SPEED;
+  const dy = uy * BULLET_SPEED;
+
+  // spawn bullet at ship front
+  const BULLET_W = 16;
+  const BULLET_H = 32;
+  const originX = newPlayer.positionX + newPlayer.width / 2 + ux * (newPlayer.width / 2) - BULLET_W / 2;
+  const originY = newPlayer.positionY + newPlayer.height / 2 + uy * (newPlayer.height / 2) - BULLET_H / 2;
+
+  playerBullets.push(new Bullet(originX, originY, dx, dy, 'player'));
   playShootSound();
 }
 
