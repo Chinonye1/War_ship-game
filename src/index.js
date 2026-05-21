@@ -832,6 +832,7 @@ function updateBullets() {
         if (enemy.isDestroyed) {
           kills += 1;
           money += 100; // Reward money for destructing a ship
+          playerAmmo = Math.min(playerAmmoCap, playerAmmo + 3);
           
           // Refill player life back to max as a reward
           newPlayer.life = newPlayer.maxLife;
