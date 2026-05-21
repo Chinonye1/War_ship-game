@@ -115,17 +115,19 @@ body {
 
 .bullet {
     position: absolute;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
-    border-radius: 2px;
     z-index: 4;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
 }
 
 .bullet-player {
-    background-color: white;
+    background-image: url("../images/playerBullet.png");
 }
 
 .bullet-enemy {
-    background-color: orange;
+    background-image: url("../images/enemyBullet.png");
 }
 
 .life-bar {
@@ -234,6 +236,80 @@ body {
     letter-spacing: 3px;
     text-shadow: 0 0 15px rgba(255, 166, 0, 0.8), 2px 2px 0px rgba(255, 60, 0, 0.8);
     text-transform: uppercase;
+}
+
+/* Result / End screen styles (Win / Defeat) */
+.result-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.03), rgba(0,0,0,0) 20%), transparent;
+}
+
+.result-card {
+    text-align: center;
+    background: linear-gradient(180deg, rgba(6,22,30,0.85), rgba(2,10,15,0.9));
+    padding: 36px 48px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 255, 213, 0.06) inset;
+    max-width: 560px;
+    width: calc(100% - 48px);
+    transform: translateY(0);
+    animation: popIn 420ms cubic-bezier(.2,.9,.2,1);
+}
+
+.result-title {
+    font-family: 'Black Ops One', 'Orbitron', sans-serif;
+    font-size: 56px;
+    margin: 0 0 8px 0;
+    color: #ffd07a;
+    text-shadow: 0 6px 18px rgba(255,140,0,0.16), 0 2px 0 rgba(0,0,0,0.45);
+}
+
+.result-subtext {
+    font-family: 'Orbitron', sans-serif;
+    color: #cfeeea;
+    margin: 0 0 18px 0;
+    font-size: 16px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.result-btn {
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(180deg, #00ffd5, #00c8a8);
+    color: #052126;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 800;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 200, 170, 0.12), 0 2px 0 rgba(255,255,255,0.02) inset;
+}
+
+.result-btn.secondary {
+    background: transparent;
+    color: #e6fdfa;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.result-btn:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .difficulty-buttons {

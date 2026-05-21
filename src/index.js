@@ -592,8 +592,14 @@ const enemyBullets = [];
 
 class Bullet {
   constructor(x, y, dx, dy, owner) {
-    this.width = 8;
-    this.height = 16;
+    // make bullet elements large enough for PNGs to display clearly
+    if (owner === 'player') {
+      this.width = 16;
+      this.height = 32;
+    } else {
+      this.width = 14;
+      this.height = 32;
+    }
     this.dx = dx;
     this.dy = dy;
     this.owner = owner;
@@ -604,6 +610,14 @@ class Bullet {
     this.el.style.width = `${this.width}px`;
     this.el.style.height = `${this.height}px`;
     this.el.style.zIndex = '5';
+
+    // rotate the bullet to point in its movement direction
+    const angle = Math.atan2(this.dy, this.dx); // radians from +x axis
+    const angleDeg = (angle * 180) / Math.PI;
+    // images are drawn pointing up, so add 90deg to align
+    const rotationDeg = angleDeg + 90;
+    this.el.style.transform = `rotate(${rotationDeg}deg)`;
+    this.el.style.transformOrigin = 'center center';
 
     this.container = document.getElementById('seaboard') || document.body;
     this.container.appendChild(this.el);
