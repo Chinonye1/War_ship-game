@@ -1,7 +1,13 @@
+html {
+    height: 100%;
+    background: var(--sea-deep);
+}
+
 body {
     margin: 0;
     padding: 0;
-    background-color: blue;
+    min-height: 100%;
+    background-color: var(--sea-deep);
     overflow: hidden;
     touch-action: none;
 }
@@ -21,11 +27,10 @@ body {
     background-repeat: no-repeat;
     width: 100vw;
     height: 100vh;
-    /* position: relative;
+    min-height: 100dvh;
+    position: relative;
     overflow: hidden;
-    transform-style: preserve-3d; */
-    
-
+    transform-style: preserve-3d;
 }
 
 #seaboard::before {
